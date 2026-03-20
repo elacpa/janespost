@@ -6,122 +6,97 @@
 <title>Austen Would Tweet - Generator</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background: #f0f2f5;
-    min-height: 100vh;
+    background: #f0f2f5; min-height: 100vh;
   }
-
   .app-header {
     background: linear-gradient(135deg, #2F5496, #1a3a6e);
-    color: white;
-    padding: 20px 24px;
-    text-align: center;
+    color: white; padding: 20px 24px; text-align: center;
   }
-
   .app-header h1 { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
   .app-header p { font-size: 13px; opacity: 0.85; }
-
   .container { max-width: 540px; margin: 0 auto; padding: 20px 16px; }
-
-  .compose-screen, .preview-screen { display: none; }
-  .compose-screen.active, .preview-screen.active { display: block; }
+  .setup-screen, .compose-screen, .preview-screen { display: none; }
+  .setup-screen.active, .compose-screen.active, .preview-screen.active { display: block; }
 
   .input-group {
-    background: white;
-    border-radius: 16px;
-    padding: 16px;
-    margin-bottom: 16px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    background: white; border-radius: 16px; padding: 16px;
+    margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.08);
   }
-
   .input-group label { display: block; font-size: 14px; font-weight: 600; color: #333; margin-bottom: 6px; }
-  .input-group .hint { font-size: 12px; color: #888; margin-bottom: 10px; }
-
-  /* Photo upload area */
-  .photo-methods { display: flex; flex-direction: column; gap: 12px; }
-
-  .photo-top-row { display: flex; align-items: center; gap: 16px; }
-
-  .photo-preview {
-    width: 64px; height: 64px; border-radius: 50%; background: #e1e8ed;
-    display: flex; align-items: center; justify-content: center;
-    overflow: hidden; flex-shrink: 0; border: 2px solid #ddd;
+  .input-group .hint { font-size: 12px; color: #888; margin-bottom: 10px; line-height: 1.5; }
+  input[type="text"], textarea {
+    width: 100%; padding: 10px 12px; border: 1.5px solid #e1e8ed; border-radius: 10px;
+    font-size: 15px; font-family: inherit; transition: border-color 0.2s; outline: none;
   }
-  .photo-preview img { width: 100%; height: 100%; object-fit: cover; }
-  .photo-preview .placeholder { font-size: 28px; color: #aab8c2; }
+  input[type="text"]:focus, textarea:focus { border-color: #2F5496; }
+  textarea { resize: none; height: 100px; line-height: 1.4; }
 
-  .photo-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
+  .primary-btn {
+    width: 100%; padding: 14px; background: #2F5496; color: white; border: none;
+    border-radius: 28px; font-size: 16px; font-weight: 700; cursor: pointer; transition: background 0.2s; margin-top: 8px;
+  }
+  .primary-btn:hover { background: #1a3a6e; }
+  .primary-btn:disabled { background: #aab8c2; cursor: not-allowed; }
 
   .upload-btn {
     background: #2F5496; color: white; border: none; padding: 8px 16px;
     border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.2s;
   }
   .upload-btn:hover { background: #1a3a6e; }
-
   .upload-btn.secondary { background: white; color: #2F5496; border: 1.5px solid #2F5496; }
   .upload-btn.secondary:hover { background: #f0f4fa; }
 
-  .drop-zone {
-    border: 2px dashed #b4c6e7; border-radius: 12px; padding: 20px;
-    text-align: center; color: #888; font-size: 13px; cursor: pointer;
-    transition: all 0.2s; display: none;
+  /* Setup screen */
+  .setup-hero {
+    text-align: center; padding: 20px 0 10px;
   }
-  .drop-zone.visible { display: block; }
-  .drop-zone.dragover { border-color: #2F5496; background: #f0f4fa; color: #2F5496; }
-  .drop-zone p { pointer-events: none; }
-
-  .url-input-row { display: none; gap: 8px; align-items: center; }
-  .url-input-row.visible { display: flex; }
-  .url-input-row input { flex: 1; }
-  .url-input-row button { flex-shrink: 0; }
-
-  .name-row { display: flex; gap: 10px; }
-  .name-row input { flex: 1; }
-
-  input[type="text"], textarea {
-    width: 100%; padding: 10px 12px; border: 1.5px solid #e1e8ed; border-radius: 10px;
-    font-size: 15px; font-family: inherit; transition: border-color 0.2s; outline: none;
+  .setup-avatar {
+    width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 12px;
+    overflow: hidden; border: 3px solid #2F5496;
   }
-  input[type="text"]:focus, textarea:focus { border-color: #2F5496; }
+  .setup-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .setup-title { font-size: 18px; font-weight: 700; color: #0f1419; margin-bottom: 4px; }
+  .setup-subtitle { font-size: 13px; color: #536471; line-height: 1.5; max-width: 380px; margin: 0 auto; }
 
-  textarea { resize: none; height: 100px; line-height: 1.4; }
+  .setup-field { margin-bottom: 16px; }
+  .setup-field label { display: block; font-size: 14px; font-weight: 600; color: #333; margin-bottom: 6px; }
+  .setup-field .hint { font-size: 12px; color: #888; margin-bottom: 8px; }
+  .setup-row { display: flex; gap: 10px; align-items: center; }
+  .room-input { width: 60px; text-align: center; }
 
-  .char-count { text-align: right; font-size: 12px; color: #888; margin-top: 4px; }
-  .char-count.over { color: #e0245e; font-weight: 600; }
-
-  .tweet-type-selector { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
-
-  .tweet-type-btn {
-    padding: 6px 14px; border-radius: 20px; border: 1.5px solid #e1e8ed;
-    background: white; font-size: 13px; cursor: pointer; transition: all 0.2s; color: #536471;
+  .instructions-box {
+    background: #fff3e0; border-radius: 12px; padding: 14px 16px;
+    margin-bottom: 16px; border-left: 4px solid #e65100;
   }
-  .tweet-type-btn.active { background: #2F5496; color: white; border-color: #2F5496; }
-  .tweet-type-btn:hover:not(.active) { border-color: #2F5496; color: #2F5496; }
-  .tweet-type-btn.saved { position: relative; }
-  .tweet-type-btn.saved::after {
-    content: '✓'; position: absolute; top: -6px; right: -6px;
-    background: #4caf50; color: white; width: 16px; height: 16px; border-radius: 50%;
-    font-size: 10px; display: flex; align-items: center; justify-content: center;
-  }
+  .instructions-box p { font-size: 13px; color: #5d4037; line-height: 1.5; }
+  .instructions-box strong { color: #e65100; }
 
-  .generate-btn {
-    width: 100%; padding: 14px; background: #2F5496; color: white; border: none;
-    border-radius: 28px; font-size: 16px; font-weight: 700; cursor: pointer; transition: background 0.2s; margin-top: 8px;
+  /* Compose screen */
+  .compose-header {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 16px;
+    padding: 10px 14px; background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.08);
   }
-  .generate-btn:hover { background: #1a3a6e; }
-  .generate-btn:disabled { background: #aab8c2; cursor: not-allowed; }
+  .compose-header-avatar { width: 36px; height: 36px; border-radius: 50%; overflow: hidden; flex-shrink: 0; }
+  .compose-header-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .compose-header-info { flex: 1; }
+  .compose-header-name { font-size: 14px; font-weight: 700; color: #0f1419; }
+  .compose-header-handle { font-size: 12px; color: #536471; }
+  .compose-header-edit { font-size: 12px; color: #2F5496; cursor: pointer; font-weight: 600; }
 
-  /* Saved tweets strip */
+  .tweet-counter { text-align: center; margin-bottom: 16px; }
+  .tweet-counter-pills { display: flex; justify-content: center; gap: 8px; }
+  .pill { width: 32px; height: 8px; border-radius: 4px; background: #e1e8ed; transition: background 0.3s; }
+  .pill.filled { background: #2F5496; }
+  .saved-tweets-label-small { font-size: 12px; color: #888; margin-top: 6px; }
+
   .saved-tweets-strip {
     background: white; border-radius: 16px; padding: 12px 16px;
-    margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-    display: none;
+    margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); display: none;
   }
   .saved-tweets-strip.visible { display: block; }
   .saved-tweets-strip h3 { font-size: 13px; color: #536471; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
-
   .saved-tweet-card {
     display: flex; align-items: center; gap: 10px; padding: 10px;
     border: 1.5px solid #e1e8ed; border-radius: 12px; margin-bottom: 8px;
@@ -129,17 +104,49 @@
   }
   .saved-tweet-card:last-child { margin-bottom: 0; }
   .saved-tweet-card:hover { border-color: #2F5496; background: #f8fafd; }
-
-  .saved-tweet-badge {
-    padding: 3px 8px; border-radius: 10px; font-size: 10px;
-    font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; flex-shrink: 0;
-  }
+  .saved-tweet-badge { padding: 3px 8px; border-radius: 10px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; flex-shrink: 0; }
   .saved-tweet-text { font-size: 13px; color: #333; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .saved-tweet-edit { font-size: 12px; color: #2F5496; font-weight: 600; flex-shrink: 0; }
 
-  /* Preview screen */
-  .preview-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+  .tweet-type-selector { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+  .tweet-type-btn {
+    padding: 6px 14px; border-radius: 20px; border: 1.5px solid #e1e8ed;
+    background: white; font-size: 13px; cursor: pointer; transition: all 0.2s; color: #536471; position: relative;
+  }
+  .tweet-type-btn.active { background: #2F5496; color: white; border-color: #2F5496; }
+  .tweet-type-btn:hover:not(.active) { border-color: #2F5496; color: #2F5496; }
+  .tweet-type-btn.saved::after {
+    content: '✓'; position: absolute; top: -6px; right: -6px;
+    background: #4caf50; color: white; width: 16px; height: 16px; border-radius: 50%;
+    font-size: 10px; display: flex; align-items: center; justify-content: center;
+  }
 
+  /* Tweet image area */
+  .tweet-image-area {
+    border: 2px dashed #b4c6e7; border-radius: 12px; padding: 16px;
+    text-align: center; color: #888; font-size: 13px; cursor: pointer;
+    transition: all 0.2s; position: relative; min-height: 80px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
+  }
+  .tweet-image-area.dragover { border-color: #2F5496; background: #f0f4fa; color: #2F5496; }
+  .tweet-image-area.has-image { border-style: solid; border-color: #e1e8ed; padding: 8px; }
+  .tweet-image-area img { max-width: 100%; max-height: 200px; border-radius: 8px; }
+  .tweet-image-area .remove-img {
+    position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.6); color: white;
+    border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; font-size: 14px;
+    display: none; align-items: center; justify-content: center;
+  }
+  .tweet-image-area.has-image .remove-img { display: flex; }
+  .tweet-image-buttons { display: flex; gap: 8px; margin-top: 6px; }
+  .url-row { display: none; gap: 8px; align-items: center; margin-top: 8px; width: 100%; }
+  .url-row.visible { display: flex; }
+  .url-row input { flex: 1; font-size: 13px; padding: 8px 10px; }
+
+  .char-count { text-align: right; font-size: 12px; color: #888; margin-top: 4px; }
+  .char-count.over { color: #e0245e; font-weight: 600; }
+
+  /* Preview */
+  .preview-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
   .back-btn {
     background: none; border: 1.5px solid #2F5496; color: #2F5496; padding: 8px 16px;
     border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s;
@@ -150,28 +157,18 @@
     background: white; border-radius: 16px; padding: 16px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.1); border: 1px solid #e1e8ed;
   }
-
   .tweet-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-
-  .tweet-avatar {
-    width: 48px; height: 48px; border-radius: 50%; background: #e1e8ed;
-    overflow: hidden; flex-shrink: 0;
-  }
+  .tweet-avatar { width: 48px; height: 48px; border-radius: 50%; background: #e1e8ed; overflow: hidden; flex-shrink: 0; }
   .tweet-avatar img { width: 100%; height: 100%; object-fit: cover; }
-
   .tweet-user-info { flex: 1; min-width: 0; }
   .tweet-display-name { font-weight: 700; font-size: 15px; color: #0f1419; display: flex; align-items: center; gap: 4px; }
-
   .verified-badge {
     display: inline-flex; align-items: center; justify-content: center;
     width: 18px; height: 18px; background: #1d9bf0; border-radius: 50%; flex-shrink: 0;
   }
   .verified-badge svg { width: 12px; height: 12px; fill: white; }
-
-  .tweet-handle { font-size: 13px; color: #536471; }
-
+  .tweet-handle-line { font-size: 13px; color: #536471; }
   .tweet-x-logo { width: 24px; height: 24px; color: #0f1419; flex-shrink: 0; }
-
   .tweet-type-badge-preview {
     display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 11px;
     font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;
@@ -179,62 +176,47 @@
   .badge-romantic { background: #fce4ec; color: #c62828; }
   .badge-victorian { background: #e8eaf6; color: #283593; }
   .badge-austen { background: #fff3e0; color: #e65100; }
-
   .tweet-body { font-size: 15px; line-height: 1.45; color: #0f1419; margin-bottom: 8px; word-wrap: break-word; }
+  .tweet-card-image { width: 100%; border-radius: 12px; margin-bottom: 8px; max-height: 280px; object-fit: cover; }
   .tweet-hashtags { color: #1d9bf0; font-size: 15px; margin-bottom: 12px; }
   .tweet-timestamp { font-size: 13px; color: #536471; padding-top: 12px; border-top: 1px solid #e1e8ed; }
-
   .tweet-metrics { display: flex; gap: 20px; padding-top: 10px; border-top: 1px solid #e1e8ed; margin-top: 10px; }
   .metric { font-size: 13px; color: #536471; }
   .metric span { font-weight: 700; color: #0f1419; }
 
   .action-buttons { display: flex; gap: 10px; margin-top: 20px; }
-
   .action-btn {
     flex: 1; padding: 12px; border-radius: 28px; font-size: 14px;
     font-weight: 700; cursor: pointer; transition: all 0.2s; border: none; text-align: center;
   }
   .download-btn { background: #2F5496; color: white; }
   .download-btn:hover { background: #1a3a6e; }
+  .copy-btn { background: #1d9bf0; color: white; }
+  .copy-btn:hover { background: #1a8cd8; }
   .new-tweet-btn { background: white; color: #2F5496; border: 1.5px solid #2F5496; }
   .new-tweet-btn:hover { background: #f0f4fa; }
 
-  .copy-success {
-    text-align: center; padding: 10px; background: #e8f5e9; color: #2e7d32;
-    border-radius: 10px; font-size: 13px; font-weight: 600; margin-top: 12px; display: none;
+  .toast {
+    text-align: center; padding: 10px; border-radius: 10px;
+    font-size: 13px; font-weight: 600; margin-top: 12px; display: none;
   }
-  .copy-success.show { display: block; }
+  .toast.show { display: block; }
+  .toast.success { background: #e8f5e9; color: #2e7d32; }
+  .toast.info { background: #e3f2fd; color: #1565c0; }
 
-  .tweet-counter { text-align: center; margin-bottom: 16px; }
-  .tweet-counter-pills { display: flex; justify-content: center; gap: 8px; }
-  .pill { width: 32px; height: 8px; border-radius: 4px; background: #e1e8ed; transition: background 0.3s; }
-  .pill.filled { background: #2F5496; }
-  .saved-tweets-label-small { font-size: 12px; color: #888; margin-top: 6px; }
-
-  .instructions-box {
-    background: #fff3e0; border-radius: 12px; padding: 14px 16px;
-    margin-bottom: 16px; border-left: 4px solid #e65100;
-  }
-  .instructions-box p { font-size: 13px; color: #5d4037; line-height: 1.5; }
-  .instructions-box strong { color: #e65100; }
-
-  #fileInput { display: none; }
-
-  .preview-nav {
-    display: flex; justify-content: center; gap: 8px; margin-top: 16px;
-  }
+  .preview-nav { display: flex; justify-content: center; gap: 8px; margin-top: 16px; }
   .preview-nav-btn {
     padding: 6px 14px; border-radius: 20px; border: 1.5px solid #e1e8ed;
     background: white; font-size: 12px; cursor: pointer; transition: all 0.2s; color: #536471;
   }
   .preview-nav-btn.active-nav { background: #2F5496; color: white; border-color: #2F5496; }
   .preview-nav-btn:hover:not(.active-nav) { border-color: #2F5496; color: #2F5496; }
-  .preview-nav-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  #profileFileInput, #tweetImageFileInput { display: none; }
 
   @media (max-width: 480px) {
     .container { padding: 12px 10px; }
-    .name-row { flex-direction: column; gap: 8px; }
-    .photo-buttons { flex-direction: column; }
+    .action-buttons { flex-direction: column; }
   }
 </style>
 </head>
@@ -247,8 +229,53 @@
 
 <div class="container">
 
-  <!-- COMPOSE SCREEN -->
-  <div class="compose-screen active" id="composeScreen">
+  <!-- ==================== SETUP SCREEN ==================== -->
+  <div class="setup-screen active" id="setupScreen">
+
+    <div class="setup-hero">
+      <div class="setup-avatar" id="setupAvatar">
+        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSUFIOd4AzpzCGwQn4BVLx3NvTXH56kgAzpQbZBgZj8cYNJPrjq3UI0PVXPiwz4LNoTMgZmqhUC3Reszzz0R1cu_oaj8imhK1Wjj3pvUsM&s=10" alt="Jane Austen" id="setupAvatarImg">
+      </div>
+      <div class="setup-title">You are Jane Austen.</div>
+      <div class="setup-subtitle">You've just discovered the internet. You have opinions. You have 280 characters. The world isn't ready.</div>
+    </div>
+
+    <div class="input-group">
+      <label>Your Breakout Room Number</label>
+      <div class="hint">Check your Zoom breakout room assignment and enter the number below.</div>
+      <input type="text" id="setupRoomNumber" placeholder="?" style="width:80px;text-align:center;">
+    </div>
+
+    <div class="input-group">
+      <label>Pick Jane's Handle</label>
+      <div class="hint">Create a witty, Austen-worthy Twitter handle. This will appear on all 3 of your tweets.</div>
+      <input type="text" id="setupHandle" placeholder="@pickJaneshandle">
+    </div>
+
+    <div class="instructions-box">
+      <p><strong>What you'll do next:</strong> Write 3 tweets as Jane Austen. Each tweet reacts to something modern through a different lens:</p>
+      <p style="margin-top:8px;">🌿 <strong>Romantic Reaction</strong> — nature, emotion, "follow your heart" content</p>
+      <p>🏛️ <strong>Victorian Reaction</strong> — social climbing, appearances, hustle culture</p>
+      <p>✨ <strong>The Austen Special</strong> — polite on the surface, devastating underneath</p>
+      <p style="margin-top:8px;">For each tweet, you'll also find an image that represents it. When you're done, save your tweets and post them to Padlet.</p>
+    </div>
+
+    <button class="primary-btn" onclick="startComposing()">Let's Tweet →</button>
+  </div>
+
+  <!-- ==================== COMPOSE SCREEN ==================== -->
+  <div class="compose-screen" id="composeScreen">
+
+    <div class="compose-header" id="composeHeader">
+      <div class="compose-header-avatar">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Jane_Austen_coloured_version.jpg/440px-Jane_Austen_coloured_version.jpg" alt="Jane Austen">
+      </div>
+      <div class="compose-header-info">
+        <div class="compose-header-name">Jane Austen <span style="color:#536471;font-weight:400;font-size:12px;" id="composeRoomLabel"></span></div>
+        <div class="compose-header-handle" id="composeHandleLabel"></div>
+      </div>
+      <span class="compose-header-edit" onclick="goToSetup()">Edit ✎</span>
+    </div>
 
     <div class="tweet-counter">
       <div class="tweet-counter-pills">
@@ -259,56 +286,14 @@
       <div class="saved-tweets-label-small" id="savedLabel">0 of 3 tweets created</div>
     </div>
 
-    <!-- Saved tweets strip -->
     <div class="saved-tweets-strip" id="savedStrip">
       <h3>Your Tweets</h3>
       <div id="savedTweetsList"></div>
     </div>
 
-    <div class="instructions-box">
-      <p><strong>Your mission:</strong> Write 3 tweets as Jane Austen. Use her signature wit — polite on the surface, devastating underneath. Each tweet should connect to a Romantic or Victorian value.</p>
-    </div>
-
-    <div class="input-group">
-      <label>Profile Photo</label>
-      <div class="hint">Upload, drag & drop, or paste an image URL</div>
-      <div class="photo-methods">
-        <div class="photo-top-row">
-          <div class="photo-preview" id="photoPreview">
-            <span class="placeholder">👤</span>
-          </div>
-          <div class="photo-buttons">
-            <button class="upload-btn" onclick="document.getElementById('fileInput').click()">📁 Upload</button>
-            <button class="upload-btn secondary" onclick="toggleDropZone()">📎 Drag & Drop</button>
-            <button class="upload-btn secondary" onclick="toggleUrlInput()">🔗 Paste URL</button>
-          </div>
-        </div>
-        <div class="drop-zone" id="dropZone">
-          <p>📷 Drag & drop an image here</p>
-        </div>
-        <div class="url-input-row" id="urlInputRow">
-          <input type="text" id="photoUrl" placeholder="Paste image URL here...">
-          <button class="upload-btn" onclick="loadFromUrl()">Load</button>
-        </div>
-      </div>
-      <input type="file" id="fileInput" accept="image/*">
-    </div>
-
-    <div class="input-group">
-      <label>Your Handle & Breakout Room</label>
-      <div class="hint">Create a witty Austen-style handle and enter your breakout room number</div>
-      <div class="name-row">
-        <input type="text" id="handle" placeholder="@WittyLizzy" value="" style="flex:2;">
-        <div style="display:flex;align-items:center;gap:6px;flex:1;">
-          <span style="font-size:13px;color:#536471;white-space:nowrap;">Room #</span>
-          <input type="text" id="roomNumber" placeholder="3" value="" style="width:50px;text-align:center;">
-        </div>
-      </div>
-    </div>
-
     <div class="input-group">
       <label>Tweet Type</label>
-      <div class="hint">Which of the 3 required tweets is this?</div>
+      <div class="hint">Which of the 3 required tweets are you writing?</div>
       <div class="tweet-type-selector" id="typeSelector">
         <button class="tweet-type-btn active" data-type="romantic" onclick="selectType(this)">🌿 Romantic</button>
         <button class="tweet-type-btn" data-type="victorian" onclick="selectType(this)">🏛️ Victorian</button>
@@ -317,44 +302,64 @@
     </div>
 
     <div class="input-group">
+      <label>Tweet Image</label>
+      <div class="hint" id="imageHint">Find or upload an image that represents this tweet — a meme, a photo, a screenshot of something Austen would react to.</div>
+      <div class="tweet-image-area" id="tweetImageArea">
+        <button class="remove-img" onclick="removeTweetImage(event)">✕</button>
+        <p id="tweetImagePlaceholder">📷 Drag & drop an image here, or use the buttons below</p>
+        <div class="tweet-image-buttons" id="tweetImageButtons">
+          <button class="upload-btn" style="font-size:12px;padding:6px 12px;" onclick="document.getElementById('tweetImageFileInput').click()">📁 Upload</button>
+          <button class="upload-btn secondary" style="font-size:12px;padding:6px 12px;" onclick="toggleImageUrl()">🔗 Paste URL</button>
+        </div>
+        <div class="url-row" id="imageUrlRow">
+          <input type="text" id="tweetImageUrl" placeholder="Paste image URL here...">
+          <button class="upload-btn" style="font-size:12px;padding:6px 10px;" onclick="loadTweetImageUrl()">Load</button>
+        </div>
+      </div>
+      <input type="file" id="tweetImageFileInput" accept="image/*">
+    </div>
+
+    <div class="input-group">
       <label>Tweet</label>
       <div class="hint" id="tweetHint">🌿 ROMANTIC REACTION: How would Austen respond to something Romantic in today's world? Think nature content, "follow your heart" advice, emotional vulnerability posts, cottagecore. Would she approve, mock it gently, or both?</div>
-      <textarea id="tweetText" placeholder="React to something Romantic in today's world — nature trends, emotional posts, 'follow your heart' advice. Keep it witty and under 280 characters." maxlength="300" oninput="updateCharCount()"></textarea>
+      <textarea id="tweetText" placeholder="React to something Romantic in today's world — nature trends, emotional posts, 'follow your heart' advice. Witty and under 280 characters." maxlength="300" oninput="updateCharCount()"></textarea>
       <div class="char-count" id="charCount">0 / 280</div>
     </div>
 
     <div class="input-group">
       <label>Hashtags</label>
-      <div class="hint">Add hashtags separated by spaces (e.g. #RegencyTwitter #AustenSays)</div>
+      <div class="hint">Add hashtags separated by spaces</div>
       <input type="text" id="hashtags" placeholder="#RegencyTwitter #AustenSays">
     </div>
 
-    <button class="generate-btn" onclick="generateTweet()">Preview Tweet →</button>
+    <button class="primary-btn" onclick="generateTweet()">Preview Tweet →</button>
   </div>
 
-  <!-- PREVIEW SCREEN -->
+  <!-- ==================== PREVIEW SCREEN ==================== -->
   <div class="preview-screen" id="previewScreen">
 
     <div class="preview-header">
-      <button class="back-btn" onclick="goBack()">← Edit Tweet</button>
+      <button class="back-btn" onclick="goBackToCompose()">← Edit Tweet</button>
       <span class="saved-tweets-label-small" id="previewSavedLabel"></span>
     </div>
 
     <div id="tweetCard" class="tweet-card">
       <div class="tweet-header">
-        <div class="tweet-avatar" id="tweetAvatar"></div>
+        <div class="tweet-avatar">
+          <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSUFIOd4AzpzCGwQn4BVLx3NvTXH56kgAzpQbZBgZj8cYNJPrjq3UI0PVXPiwz4LNoTMgZmqhUC3Reszzz0R1cu_oaj8imhK1Wjj3pvUsM&s=10" alt="Jane Austen">
+        </div>
         <div class="tweet-user-info">
           <div class="tweet-display-name">
-            <span id="tweetDisplayName"></span>
+            <span>Jane Austen</span>
             <span class="verified-badge"><svg viewBox="0 0 24 24"><path d="M22.25 12c0-1.43-.88-2.67-2.19-3.34.46-1.39.2-2.9-.81-3.91s-2.52-1.27-3.91-.81c-.66-1.31-1.91-2.19-3.34-2.19s-2.67.88-3.33 2.19c-1.4-.46-2.91-.2-3.92.81s-1.26 2.52-.8 3.91c-1.31.67-2.2 1.91-2.2 3.34s.89 2.67 2.2 3.34c-.46 1.39-.21 2.9.8 3.91s2.52 1.26 3.91.81c.67 1.31 1.91 2.19 3.34 2.19s2.68-.88 3.34-2.19c1.39.45 2.9.2 3.91-.81s1.27-2.52.81-3.91c1.31-.67 2.19-1.91 2.19-3.34zm-11.71 4.2L6.8 12.46l1.41-1.42 2.26 2.26 4.8-5.23 1.47 1.36-6.2 6.77z"/></svg></span>
           </div>
-          <div class="tweet-handle"><span id="tweetHandle"></span> · <span id="tweetRoom" style="color:#536471;"></span></div>
+          <div class="tweet-handle-line"><span id="tweetHandle"></span> · <span id="tweetRoom"></span></div>
         </div>
         <svg class="tweet-x-logo" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" fill="currentColor"/></svg>
       </div>
-
       <div id="tweetTypeBadge"></div>
       <div class="tweet-body" id="tweetBody"></div>
+      <img class="tweet-card-image" id="tweetCardImage" style="display:none;">
       <div class="tweet-hashtags" id="tweetHashtags"></div>
       <div class="tweet-timestamp" id="tweetTimestamp"></div>
       <div class="tweet-metrics">
@@ -364,25 +369,28 @@
       </div>
     </div>
 
-    <!-- Navigation between saved tweets -->
     <div class="preview-nav" id="previewNav"></div>
 
     <div class="action-buttons">
-      <button class="action-btn download-btn" onclick="downloadTweet()">📸 Save as Image</button>
+      <button class="action-btn download-btn" onclick="downloadTweet()">📸 Save Image</button>
+      <button class="action-btn copy-btn" onclick="copyToClipboard()">📋 Copy to Clipboard</button>
+    </div>
+    <div class="action-buttons" style="margin-top:8px;">
       <button class="action-btn new-tweet-btn" id="nextTweetBtn" onclick="newTweet()">+ Next Tweet</button>
     </div>
 
-    <div class="copy-success" id="copySuccess">Image saved! Paste it into your Padlet post.</div>
+    <div class="toast success" id="toastSuccess">Image saved! Paste it into your Padlet post.</div>
+    <div class="toast info" id="toastCopied">Copied to clipboard! Paste into Padlet.</div>
   </div>
 
 </div>
 
 <script>
-  let photoData = null;
   let selectedType = 'romantic';
   let currentViewingType = null;
-
-  // Store all tweets
+  let globalHandle = '';
+  let globalRoomNumber = '';
+  let currentTweetImageData = null;
   const tweets = {};
 
   const badgeMap = {
@@ -390,104 +398,134 @@
     victorian: { text: '🏛️ Victorian Reaction', cls: 'badge-victorian', label: '🏛️ Victorian' },
     austen: { text: '✨ The Austen Special', cls: 'badge-austen', label: '✨ Austen Special' }
   };
-
-  // File input handler
-  document.getElementById('fileInput').addEventListener('change', function(e) {
-    const file = e.target.files[0];
-    if (file) loadImageFile(file);
-  });
-
-  // Drag and drop
-  const dropZone = document.getElementById('dropZone');
-  dropZone.addEventListener('dragover', function(e) { e.preventDefault(); dropZone.classList.add('dragover'); });
-  dropZone.addEventListener('dragleave', function() { dropZone.classList.remove('dragover'); });
-  dropZone.addEventListener('drop', function(e) {
-    e.preventDefault();
-    dropZone.classList.remove('dragover');
-    const file = e.dataTransfer.files[0];
-    if (file && file.type.startsWith('image/')) loadImageFile(file);
-  });
-
-  function loadImageFile(file) {
-    const reader = new FileReader();
-    reader.onload = function(ev) {
-      photoData = ev.target.result;
-      document.getElementById('photoPreview').innerHTML = '<img src="' + photoData + '" alt="Profile">';
-    };
-    reader.readAsDataURL(file);
-  }
-
-  function toggleDropZone() {
-    const dz = document.getElementById('dropZone');
-    dz.classList.toggle('visible');
-    document.getElementById('urlInputRow').classList.remove('visible');
-  }
-
-  function toggleUrlInput() {
-    const ui = document.getElementById('urlInputRow');
-    ui.classList.toggle('visible');
-    document.getElementById('dropZone').classList.remove('visible');
-  }
-
-  function loadFromUrl() {
-    const url = document.getElementById('photoUrl').value.trim();
-    if (!url) return;
-    const img = new Image();
-    img.crossOrigin = 'anonymous';
-    img.onload = function() {
-      const canvas = document.createElement('canvas');
-      canvas.width = img.width;
-      canvas.height = img.height;
-      canvas.getContext('2d').drawImage(img, 0, 0);
-      try {
-        photoData = canvas.toDataURL('image/png');
-      } catch(e) {
-        photoData = url;
-      }
-      document.getElementById('photoPreview').innerHTML = '<img src="' + (photoData || url) + '" alt="Profile">';
-      document.getElementById('urlInputRow').classList.remove('visible');
-    };
-    img.onerror = function() {
-      photoData = url;
-      document.getElementById('photoPreview').innerHTML = '<img src="' + url + '" alt="Profile" onerror="this.parentElement.innerHTML=\'<span class=placeholder>⚠️</span>\'">';
-      document.getElementById('urlInputRow').classList.remove('visible');
-    };
-    img.src = url;
-  }
-
   const tweetHints = {
     romantic: '🌿 ROMANTIC REACTION: How would Austen respond to something Romantic in today\'s world? Think nature content, "follow your heart" advice, emotional vulnerability posts, cottagecore. Would she approve, mock it gently, or both?',
     victorian: '🏛️ VICTORIAN REACTION: How would Austen respond to something Victorian in today\'s world? Think influencer culture, keeping up appearances, hustle grind, family reputation management, "dress for the job you want" energy.',
     austen: '✨ THE AUSTEN SPECIAL: This is the hardest one. Write a tweet that captures Austen\'s unique position — she\'s BOTH Romantic and Victorian, and also NEITHER. She mocks the system she lives inside. The tweet should sound perfectly polite on the surface and absolutely devastating underneath. Think: a compliment that\'s actually an insult, or an observation that sounds innocent but exposes something ridiculous about society.'
   };
-
   const tweetPlaceholders = {
-    romantic: 'React to something Romantic in today\'s world — nature trends, emotional posts, "follow your heart" advice. Keep it witty and under 280 characters.',
-    victorian: 'React to something Victorian in today\'s world — social climbing, appearances, reputation management, hustle culture. Polite but cutting.',
-    austen: 'This tweet should sound like a compliment but land like a critique. Mock a system you also participate in. Polite surface, sharp underneath. This is peak Austen.'
+    romantic: 'React to something Romantic in today\'s world — nature trends, emotional posts, "follow your heart" advice. Witty and under 280 characters.',
+    victorian: 'React to something Victorian in today\'s world — social climbing, appearances, reputation management. Polite but cutting.',
+    austen: 'Sound like a compliment, land like a critique. Mock a system you also participate in. Polite surface, sharp underneath. Peak Austen.'
+  };
+  const imageHints = {
+    romantic: 'Find an image that represents this tweet — maybe a nature photo, a motivational quote post, a "live laugh love" sign, or a cottagecore aesthetic that Austen would react to.',
+    victorian: 'Find an image that represents this tweet — maybe an influencer post, a "hustle" quote, a luxury flex, or something about keeping up appearances that Austen would skewer.',
+    austen: 'Find an image that captures the duality — something that looks one way on the surface but means something else underneath. A polite smile hiding chaos. The internet pretending to be fine.'
   };
 
+  // ===== SETUP =====
+  function startComposing() {
+    const room = document.getElementById('setupRoomNumber').value.trim();
+    const handle = document.getElementById('setupHandle').value.trim();
+    if (!room) { alert('Enter your breakout room number!'); return; }
+    if (!handle) { alert('Pick a handle for Jane Austen!'); return; }
+    globalRoomNumber = room;
+    globalHandle = handle.startsWith('@') ? handle : '@' + handle;
+    document.getElementById('composeHandleLabel').textContent = globalHandle;
+    document.getElementById('composeRoomLabel').textContent = '· Room ' + globalRoomNumber;
+    document.getElementById('setupScreen').classList.remove('active');
+    document.getElementById('composeScreen').classList.add('active');
+  }
+
+  function goToSetup() {
+    document.getElementById('composeScreen').classList.remove('active');
+    document.getElementById('setupScreen').classList.add('active');
+  }
+
+  // ===== TWEET IMAGE =====
+  const tweetImageArea = document.getElementById('tweetImageArea');
+  document.getElementById('tweetImageFileInput').addEventListener('change', function(e) {
+    if (e.target.files[0]) loadTweetImageFile(e.target.files[0]);
+  });
+  tweetImageArea.addEventListener('dragover', function(e) { e.preventDefault(); tweetImageArea.classList.add('dragover'); });
+  tweetImageArea.addEventListener('dragleave', function() { tweetImageArea.classList.remove('dragover'); });
+  tweetImageArea.addEventListener('drop', function(e) {
+    e.preventDefault(); tweetImageArea.classList.remove('dragover');
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith('image/')) loadTweetImageFile(file);
+  });
+
+  function loadTweetImageFile(file) {
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+      currentTweetImageData = ev.target.result;
+      showTweetImage(currentTweetImageData);
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function toggleImageUrl() {
+    document.getElementById('imageUrlRow').classList.toggle('visible');
+  }
+
+  function loadTweetImageUrl() {
+    const url = document.getElementById('tweetImageUrl').value.trim();
+    if (!url) return;
+    currentTweetImageData = url;
+    showTweetImage(url);
+    document.getElementById('imageUrlRow').classList.remove('visible');
+  }
+
+  function showTweetImage(src) {
+    tweetImageArea.classList.add('has-image');
+    document.getElementById('tweetImagePlaceholder').style.display = 'none';
+    document.getElementById('tweetImageButtons').style.display = 'none';
+    document.getElementById('imageUrlRow').classList.remove('visible');
+    const existing = tweetImageArea.querySelector('img.tweet-preview-img');
+    if (existing) existing.remove();
+    const img = document.createElement('img');
+    img.className = 'tweet-preview-img';
+    img.src = src;
+    tweetImageArea.insertBefore(img, tweetImageArea.querySelector('.remove-img'));
+  }
+
+  function removeTweetImage(e) {
+    e.stopPropagation();
+    currentTweetImageData = null;
+    tweetImageArea.classList.remove('has-image');
+    document.getElementById('tweetImagePlaceholder').style.display = '';
+    document.getElementById('tweetImageButtons').style.display = '';
+    const existing = tweetImageArea.querySelector('img.tweet-preview-img');
+    if (existing) existing.remove();
+  }
+
+  // ===== TYPE SELECTION =====
   function selectType(btn) {
     document.querySelectorAll('.tweet-type-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     selectedType = btn.dataset.type;
-
-    // Update hint and placeholder
     document.getElementById('tweetHint').textContent = tweetHints[selectedType];
     document.getElementById('tweetText').placeholder = tweetPlaceholders[selectedType];
-
-    // If this type has a saved tweet, load it into the fields
+    document.getElementById('imageHint').textContent = imageHints[selectedType];
     if (tweets[selectedType]) {
       document.getElementById('tweetText').value = tweets[selectedType].text;
       document.getElementById('hashtags').value = tweets[selectedType].hashtags;
-      if (tweets[selectedType].handle) document.getElementById('handle').value = tweets[selectedType].handle;
-      if (tweets[selectedType].roomNumber) document.getElementById('roomNumber').value = tweets[selectedType].roomNumber;
+      if (tweets[selectedType].imageData) {
+        currentTweetImageData = tweets[selectedType].imageData;
+        showTweetImage(currentTweetImageData);
+      } else {
+        removeTweetImageSilent();
+      }
       updateCharCount();
     } else {
-      // Don't clear handle/room when switching — keep them persistent
+      document.getElementById('tweetText').value = '';
+      document.getElementById('hashtags').value = '';
+      removeTweetImageSilent();
+      updateCharCount();
     }
   }
 
+  function removeTweetImageSilent() {
+    currentTweetImageData = null;
+    tweetImageArea.classList.remove('has-image');
+    document.getElementById('tweetImagePlaceholder').style.display = '';
+    document.getElementById('tweetImageButtons').style.display = '';
+    const existing = tweetImageArea.querySelector('img.tweet-preview-img');
+    if (existing) existing.remove();
+  }
+
+  // ===== CHAR COUNT =====
   function updateCharCount() {
     const len = document.getElementById('tweetText').value.length;
     const counter = document.getElementById('charCount');
@@ -495,11 +533,10 @@
     counter.className = len > 280 ? 'char-count over' : 'char-count';
   }
 
+  // ===== PILLS & STRIP =====
   function updatePills() {
     const count = Object.keys(tweets).length;
-    for (let i = 1; i <= 3; i++) {
-      document.getElementById('pill' + i).className = i <= count ? 'pill filled' : 'pill';
-    }
+    for (let i = 1; i <= 3; i++) document.getElementById('pill' + i).className = i <= count ? 'pill filled' : 'pill';
     document.getElementById('savedLabel').textContent = count + ' of 3 tweets created';
   }
 
@@ -507,28 +544,17 @@
     const strip = document.getElementById('savedStrip');
     const list = document.getElementById('savedTweetsList');
     const types = Object.keys(tweets);
-
-    if (types.length === 0) {
-      strip.classList.remove('visible');
-      return;
-    }
-
+    if (types.length === 0) { strip.classList.remove('visible'); return; }
     strip.classList.add('visible');
     list.innerHTML = '';
-
     types.forEach(type => {
-      const t = tweets[type];
-      const badge = badgeMap[type];
+      const t = tweets[type]; const badge = badgeMap[type];
       const card = document.createElement('div');
       card.className = 'saved-tweet-card';
       card.onclick = function() { loadSavedTweet(type); };
-      card.innerHTML = '<span class="saved-tweet-badge ' + badge.cls + '">' + badge.label + '</span>' +
-        '<span class="saved-tweet-text">' + t.text + '</span>' +
-        '<span class="saved-tweet-edit">Edit →</span>';
+      card.innerHTML = '<span class="saved-tweet-badge ' + badge.cls + '">' + badge.label + '</span><span class="saved-tweet-text">' + t.text + '</span><span class="saved-tweet-edit">Edit →</span>';
       list.appendChild(card);
     });
-
-    // Update type selector checkmarks
     document.querySelectorAll('.tweet-type-btn').forEach(btn => {
       btn.classList.toggle('saved', !!tweets[btn.dataset.type]);
     });
@@ -536,105 +562,66 @@
 
   function loadSavedTweet(type) {
     selectedType = type;
-    document.querySelectorAll('.tweet-type-btn').forEach(b => {
-      b.classList.toggle('active', b.dataset.type === type);
-    });
+    document.querySelectorAll('.tweet-type-btn').forEach(b => b.classList.toggle('active', b.dataset.type === type));
     document.getElementById('tweetText').value = tweets[type].text;
     document.getElementById('hashtags').value = tweets[type].hashtags;
-    if (tweets[type].handle) document.getElementById('handle').value = tweets[type].handle;
-    if (tweets[type].roomNumber) document.getElementById('roomNumber').value = tweets[type].roomNumber;
     document.getElementById('tweetHint').textContent = tweetHints[type];
     document.getElementById('tweetText').placeholder = tweetPlaceholders[type];
+    document.getElementById('imageHint').textContent = imageHints[type];
+    if (tweets[type].imageData) { currentTweetImageData = tweets[type].imageData; showTweetImage(currentTweetImageData); }
+    else { removeTweetImageSilent(); }
     updateCharCount();
   }
 
+  // ===== SAVE =====
   function saveCurrent() {
     const text = document.getElementById('tweetText').value.trim();
     if (!text) return false;
-
-    const roomNum = document.getElementById('roomNumber').value.trim();
-
     tweets[selectedType] = {
-      text: text,
-      hashtags: document.getElementById('hashtags').value.trim(),
-      displayName: 'Jane Austen',
-      handle: document.getElementById('handle').value || '@AustenWrites',
-      roomNumber: roomNum,
-      roomLabel: roomNum ? 'Breakout Room ' + roomNum : '',
-      photoData: photoData,
-      metrics: {
+      text, hashtags: document.getElementById('hashtags').value.trim(),
+      imageData: currentTweetImageData,
+      metrics: tweets[selectedType]?.metrics || {
         retweets: Math.floor(Math.random() * 800) + 200,
         likes: Math.floor(Math.random() * 5000) + 1000,
         views: Math.floor(Math.random() * 50000) + 10000
       }
     };
-
-    updatePills();
-    updateSavedStrip();
+    updatePills(); updateSavedStrip();
     return true;
   }
 
+  // ===== GENERATE / PREVIEW =====
   function generateTweet() {
     const text = document.getElementById('tweetText').value.trim();
     if (!text) { alert('Write your tweet first!'); return; }
-    if (text.length > 280) { alert('Tweet is over 280 characters! Trim it down.'); return; }
-
+    if (text.length > 280) { alert('Tweet is over 280 characters!'); return; }
     saveCurrent();
     showPreview(selectedType);
   }
 
   function showPreview(type) {
-    const t = tweets[type];
-    if (!t) return;
+    const t = tweets[type]; if (!t) return;
     currentViewingType = type;
-
-    // Avatar
-    const avatarEl = document.getElementById('tweetAvatar');
-    if (t.photoData) {
-      avatarEl.innerHTML = '<img src="' + t.photoData + '" alt="Avatar">';
-    } else {
-      avatarEl.innerHTML = '<div style="width:100%;height:100%;background:#e1e8ed;display:flex;align-items:center;justify-content:center;font-size:24px;color:#aab8c2;">👤</div>';
-    }
-
-    document.getElementById('tweetDisplayName').textContent = 'Jane Austen';
-    document.getElementById('tweetHandle').textContent = t.handle;
-    document.getElementById('tweetRoom').textContent = t.roomLabel;
+    document.getElementById('tweetHandle').textContent = globalHandle;
+    document.getElementById('tweetRoom').textContent = 'Breakout Room ' + globalRoomNumber;
     document.getElementById('tweetBody').textContent = t.text;
-
     const badge = badgeMap[type];
     document.getElementById('tweetTypeBadge').innerHTML = '<span class="tweet-type-badge-preview ' + badge.cls + '">' + badge.text + '</span>';
+    const cardImg = document.getElementById('tweetCardImage');
+    if (t.imageData) { cardImg.src = t.imageData; cardImg.style.display = 'block'; }
+    else { cardImg.style.display = 'none'; }
     document.getElementById('tweetHashtags').textContent = t.hashtags;
-
     const now = new Date();
-    document.getElementById('tweetTimestamp').textContent =
-      now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }) + ' · ' +
-      now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-
+    document.getElementById('tweetTimestamp').textContent = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }) + ' · ' + now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
     document.getElementById('metricRetweets').textContent = t.metrics.retweets.toLocaleString();
     document.getElementById('metricLikes').textContent = t.metrics.likes.toLocaleString();
     document.getElementById('metricViews').textContent = t.metrics.views.toLocaleString();
-
-    // Build nav buttons
     buildPreviewNav(type);
-
-    // Update labels
     const count = Object.keys(tweets).length;
     document.getElementById('previewSavedLabel').textContent = count + ' of 3 saved';
-
     const nextBtn = document.getElementById('nextTweetBtn');
-    if (count >= 3) {
-      nextBtn.textContent = '✓ All 3 Done!';
-      nextBtn.style.background = '#4caf50';
-      nextBtn.style.color = 'white';
-      nextBtn.style.borderColor = '#4caf50';
-    } else {
-      nextBtn.textContent = '+ Next Tweet (' + count + '/3)';
-      nextBtn.style.background = 'white';
-      nextBtn.style.color = '#2F5496';
-      nextBtn.style.borderColor = '#2F5496';
-    }
-
-    // Switch screens
+    if (count >= 3) { nextBtn.textContent = '✓ All 3 Done!'; nextBtn.style.background = '#4caf50'; nextBtn.style.color = 'white'; nextBtn.style.borderColor = '#4caf50'; }
+    else { nextBtn.textContent = '+ Next Tweet (' + count + '/3)'; nextBtn.style.background = 'white'; nextBtn.style.color = '#2F5496'; nextBtn.style.borderColor = '#2F5496'; }
     document.getElementById('composeScreen').classList.remove('active');
     document.getElementById('previewScreen').classList.add('active');
   }
@@ -643,7 +630,6 @@
     const nav = document.getElementById('previewNav');
     const types = Object.keys(tweets);
     if (types.length <= 1) { nav.innerHTML = ''; return; }
-
     nav.innerHTML = '';
     types.forEach(type => {
       const btn = document.createElement('button');
@@ -654,6 +640,7 @@
     });
   }
 
+  // ===== DOWNLOAD & COPY =====
   function downloadTweet() {
     const card = document.getElementById('tweetCard');
     if (typeof html2canvas !== 'undefined') {
@@ -662,62 +649,71 @@
         link.download = 'austen_tweet_' + currentViewingType + '.png';
         link.href = canvas.toDataURL();
         link.click();
-        showSuccess();
+        showToast('toastSuccess');
       });
-    } else {
-      alert('Screenshot tool is loading — try again in a moment.');
-    }
+    } else { alert('Screenshot tool is loading — try again in a moment.'); }
   }
 
-  function showSuccess() {
-    const el = document.getElementById('copySuccess');
+  function copyToClipboard() {
+    const card = document.getElementById('tweetCard');
+    if (typeof html2canvas !== 'undefined') {
+      html2canvas(card, { backgroundColor: '#ffffff', scale: 2, useCORS: true }).then(canvas => {
+        canvas.toBlob(function(blob) {
+          const item = new ClipboardItem({ 'image/png': blob });
+          navigator.clipboard.write([item]).then(() => {
+            showToast('toastCopied');
+          }).catch(() => {
+            // Fallback: download instead
+            const link = document.createElement('a');
+            link.download = 'austen_tweet_' + currentViewingType + '.png';
+            link.href = canvas.toDataURL();
+            link.click();
+            showToast('toastSuccess');
+          });
+        });
+      });
+    } else { alert('Screenshot tool is loading — try again in a moment.'); }
+  }
+
+  function showToast(id) {
+    const el = document.getElementById(id);
     el.classList.add('show');
     setTimeout(() => el.classList.remove('show'), 3000);
   }
 
-  function goBack() {
-    // Load the current viewing tweet back into compose
-    if (currentViewingType && tweets[currentViewingType]) {
-      loadSavedTweet(currentViewingType);
-    }
+  // ===== NAVIGATION =====
+  function goBackToCompose() {
+    if (currentViewingType && tweets[currentViewingType]) loadSavedTweet(currentViewingType);
     document.getElementById('previewScreen').classList.remove('active');
     document.getElementById('composeScreen').classList.add('active');
   }
 
   function newTweet() {
     saveCurrent();
-
-    // Find next unsaved type
     const types = ['romantic', 'victorian', 'austen'];
     const nextType = types.find(t => !tweets[t]);
-
     if (nextType) {
       selectedType = nextType;
-      document.querySelectorAll('.tweet-type-btn').forEach(b => {
-        b.classList.toggle('active', b.dataset.type === nextType);
-      });
+      document.querySelectorAll('.tweet-type-btn').forEach(b => b.classList.toggle('active', b.dataset.type === nextType));
       document.getElementById('tweetText').value = '';
       document.getElementById('hashtags').value = '';
       document.getElementById('tweetHint').textContent = tweetHints[nextType];
       document.getElementById('tweetText').placeholder = tweetPlaceholders[nextType];
+      document.getElementById('imageHint').textContent = imageHints[nextType];
+      removeTweetImageSilent();
       updateCharCount();
     } else {
-      // All 3 done — go back to compose to see the full strip
       selectedType = Object.keys(tweets)[0];
       loadSavedTweet(selectedType);
     }
-
     document.getElementById('previewScreen').classList.remove('active');
     document.getElementById('composeScreen').classList.add('active');
   }
 
   // Init
-  updatePills();
-  updateCharCount();
-  updateSavedStrip();
+  updatePills(); updateCharCount(); updateSavedStrip();
 </script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-
 </body>
 </html>
